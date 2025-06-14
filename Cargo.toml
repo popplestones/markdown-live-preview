@@ -1,0 +1,16 @@
+[package]
+name = "markdown-live-preview"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow = "1.0.98"
+axum = {version = "0.8.4", features = ["ws"]}
+comrak = "0.39.0"
+futures = "0.3.31"
+html-escape = "0.2.13"
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.140"
+tokio = { version = "1.45.1", features = ["full"] }
+tokio-stream = "0.1.17"
+webbrowser = "1.0.4"
