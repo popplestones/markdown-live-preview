@@ -2,6 +2,12 @@
 name = "markdown-live-preview"
 version = "0.1.0"
 edition = "2024"
+description = "A live Markdown preview server with WebSocket and HTML rendering"
+license = "MIT"
+repository = "https://github.com/popplestones/markdown-live-preview"
+readme = "README.md"
+keywords = ["markdown", "live", "preview", "neovim", "websocket"]
+categories = ["text-processing", "web-programming"]
 
 [dependencies]
 anyhow = "1.0.98"
