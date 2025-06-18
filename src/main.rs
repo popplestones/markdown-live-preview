@@ -1,24 +1,7 @@
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
 
-use serde::Serialize;
-
-use crate::messages::Message;
-
-mod http_server;
-mod messages;
-mod tcp_server;
-
-#[derive(Debug, Default, Serialize)]
-struct AppState {
-    pub content: Vec<String>,
-    pub cursor: (usize, usize),
-    pub messages: Vec<Message>,
-
-    #[serde(skip_serializing)]
-    pub ws_clients: Vec<tokio::sync::mpsc::UnboundedSender<axum::extract::ws::Message>>,
-}
-
-type SharedState = Arc<RwLock<AppState>>;
+use markdown_live_preview::{AppState, http_server, tcp_server};
+use tokio::sync::RwLock;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {

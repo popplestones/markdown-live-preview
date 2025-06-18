@@ -16,11 +16,7 @@ use crate::{SharedState, messages::OutgoingMessage};
 const GITHUB_MARKDOWN_CSS: &str = include_str!("../assets/github-markdown-dark.css");
 
 pub async fn run_http_server(state: SharedState) -> anyhow::Result<()> {
-    let app = Router::new()
-        .route("/", get(serve_preview))
-        .route("/ws", get(ws_handler))
-        .route("/messages", get(get_state))
-        .with_state(state.clone());
+    let app = build_router(state);
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:3000").await?;
     println!("🌐 Serving preview at http://localhost:3000");
@@ -32,6 +28,14 @@ pub async fn run_http_server(state: SharedState) -> anyhow::Result<()> {
     axum::serve(listener, app).await?;
 
     Ok(())
+}
+
+pub fn build_router(state: SharedState) -> Router {
+    Router::new()
+        .route("/", get(serve_preview))
+        .route("/ws", get(ws_handler))
+        .route("/messages", get(get_state))
+        .with_state(state)
 }
 async fn ws_handler(ws: WebSocketUpgrade, State(state): State<SharedState>) -> impl IntoResponse {
     ws.on_upgrade(move |socket| handle_socket(socket, state))
@@ -56,7 +60,7 @@ async fn handle_socket(ws: WebSocket, state: SharedState) {
     // Register this sender in the shared state
 
     {
-        let mut state = state.write().unwrap();
+        let mut state = state.write().await;
         state.ws_clients.push(tx);
     }
 
@@ -65,7 +69,7 @@ async fn handle_socket(ws: WebSocket, state: SharedState) {
     send_task.await.ok();
 }
 async fn serve_preview(State(state): State<SharedState>) -> impl IntoResponse {
-    let state = state.read().unwrap();
+    let state = state.read().await;
 
     let mut options = comrak::Options::default();
     options.extension.alerts = true;
@@ -115,7 +119,7 @@ async fn get_state(
     axum::extract::State(state): axum::extract::State<SharedState>,
 ) -> impl IntoResponse {
     let messages = {
-        let state = state.read().unwrap();
+        let state = state.read().await;
         state.messages.clone()
     };
     Json(messages)
@@ -159,8 +163,8 @@ fn inject_cursor(mut lines: Vec<String>, cursor: (usize, usize)) -> Vec<String> 
     lines
 }
 
-pub fn render_and_broadcast(state: &SharedState) {
-    let state_guard = state.read().unwrap();
+pub async fn render_and_broadcast(state: &SharedState) {
+    let state_guard = state.read().await;
 
     let mut options = comrak::Options::default();
     options.extension.alerts = true;
