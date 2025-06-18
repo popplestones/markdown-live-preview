@@ -1,5 +1,3 @@
-use std::sync::mpsc;
-
 use axum::{
     Json, Router,
     extract::{
@@ -44,7 +42,7 @@ async fn handle_socket(ws: WebSocket, state: SharedState) {
         tokio::sync::mpsc::unbounded_channel();
     let rx = UnboundedReceiverStream::new(rx);
 
-    let (mut sender, mut receiver) = ws.split();
+    let (mut sender, mut _receiver) = ws.split();
 
     let send_task = tokio::spawn(async move {
         tokio::pin!(rx);

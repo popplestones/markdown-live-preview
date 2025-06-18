@@ -3,7 +3,10 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize)]
 #[serde(tag = "event", rename_all = "snake_case")]
 pub enum OutgoingMessage {
-    FullRender { html: String },
+    FullRender {
+        html: String,
+    },
+    #[allow(dead_code)]
     Pong,
 }
 #[derive(Debug, Deserialize, Serialize, Clone)]
